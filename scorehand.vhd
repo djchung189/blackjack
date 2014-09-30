@@ -6,10 +6,13 @@ use ieee.std_logic_unsigned.all;
 
 entity scorehand is
   port(
-		CardIn   	      : in  std_logic_vector(15 downto 0);
+		SW   	      : in  std_logic_vector(15 downto 0);
 		
       sum		         : out std_logic_vector(4 downto 0);
-      Bust		         : out std_logic
+      Bust		         : out std_logic;
+		LEDR					: out std_logic_vector( 4 downto 0);
+		LEDG					: out std_logic_vector( 7 downto 0 )
+		
 		);
 end scorehand;
 
@@ -32,10 +35,12 @@ architecture Behavioural of Scorehand is
 				
 begin
 
-	int_card0 <= unsigned(CardIn(3 downto 0));
-	int_card1 <= unsigned(CardIn(7 downto 4));
-	int_card2 <= unsigned(CardIn(11 downto 8));
-	int_card3 <= unsigned(CardIn(15 downto 12));
+	int_card0 <= unsigned(SW(3 downto 0));
+	int_card1 <= unsigned(SW(7 downto 4));
+	int_card2 <= unsigned(SW(11 downto 8));
+	int_card3 <= unsigned(SW(15 downto 12));
+	
+	LEDG(7 downto 1) <= "0000000";
 	
 	
 	process( int_card0, int_card1, int_card2, int_card3 )
@@ -139,11 +144,14 @@ begin
 	begin
 		if( int_sum1 > "10101" ) then
 			Bust <= '1';
+			LEDG(0) <= '0';
 		else
 			Bust <= '0';
+			LEDG(0) <= '1';
 		end if;
 	end process;
 	
 	sum <= int_sum1;
+	LEDR( 4 downto 0 ) <= int_sum1;
 
 end;
