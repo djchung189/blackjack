@@ -8,7 +8,7 @@ ENTITY BlackJack IS
 	   	SW   : in  std_logic_vector(17 downto 0); -- SW(0) = player stands
 			KEY  : in  std_logic_vector(3 downto 0);  -- KEY(3) reset, KEY(0) advance
 			
---	   	LEDR : out std_logic_vector(17 downto 0); -- red LEDs: dealer wins
+	   	LEDR : out std_logic_vector(17 downto 0); -- red LEDs: dealer wins
 	   	LEDG : out std_logic_vector(7 downto 0);  -- green LEDs: player wins
 			
 			LEDG_test : out std_logic;
@@ -80,7 +80,7 @@ ARCHITECTURE Behavioural OF BlackJack IS
 		newPlayerCards : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
 		newDealerCards : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
 
---		redLEDs   : OUT STD_LOGIC_VECTOR(17 DOWNTO 0);
+		redLEDs   : OUT STD_LOGIC_VECTOR(17 DOWNTO 0);
 		ledG_test : out std_LOGIC;
 		greenLEDs : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
 	);
@@ -103,7 +103,7 @@ ARCHITECTURE Behavioural OF BlackJack IS
 		SIGNAL int_newPlayerCards :  STD_LOGIC_VECTOR(3 DOWNTO 0);
 		SIGNAL int_newDealerCards :  STD_LOGIC_VECTOR(3 DOWNTO 0);
 
-	--	SIGNAL int_redLEDs   :  STD_LOGIC_VECTOR(17 DOWNTO 0);
+		SIGNAL int_redLEDs   :  STD_LOGIC_VECTOR(17 DOWNTO 0);
 		SIGNAL int_greenLEDs :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 		
 --		SIGNAL int_playercards :   STD_LOGIC_VECTOR(15 DOWNTO 0); -- value of card
@@ -124,7 +124,7 @@ BEGIN
 	
 	int_PlayerStands <= SW(0);
 	int_nextStep <= KEY(0);
---	LEDR <= int_redLEDs;
+	LEDR <= int_redLEDs;
 	LEDG <= int_greenLEDs;
 
 --	HEX7 <= int_disp7;
@@ -155,7 +155,7 @@ BEGIN
 		newplayercards => int_newPlayerCards,
 		newdealercards => int_newdealercards,
 
-	--	redLEDs   => int_redLEDs,
+		redLEDs   => int_redLEDs,
 		greenLEDs => int_greenLEDs,
 		LEDG_test => LEDG_test
 	);
