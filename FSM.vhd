@@ -19,7 +19,7 @@ entity FSM is
 		newPlayerCards : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
 		newDealerCards : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
 
---		redLEDs   : OUT STD_LOGIC_VECTOR(17 DOWNTO 0);
+		redLEDs   : OUT STD_LOGIC_VECTOR(17 DOWNTO 0);
 		LEDG_TEST : out std_LOGIC;
 		greenLEDs : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
 	);
@@ -119,32 +119,32 @@ begin
 	begin
 		if(resetsignal = '0') then
 			PRESENT_STATE := idle; 
---			greenLEDs<="00000001";
---			redLEDs<="000000000000000000";
+			greenLEDs<="00000001";
+			redLEDs<="000000000000000000";
 		elsif(rising_edge(nextStep_sig)) then
 			 case PRESENT_STATE is 
-				when idle => NEXT_STATE := player_1; --redLEDs<="000000000000000001";
-				when player_1 => NEXT_STATE := dealer_1;-- redLEDs<="000000000000000011";
-				when dealer_1 => NEXT_STATE := player_2;-- redLEDs<="000000000000000111";
+				when idle => NEXT_STATE := player_1; redLEDs<="000000000000000001";
+				when player_1 => NEXT_STATE := dealer_1; redLEDs<="000000000000000011";
+				when dealer_1 => NEXT_STATE := player_2; redLEDs<="000000000000000111";
 				when player_2 =>if(playerStands='0') then
-											NEXT_STATE := player_3_hit;-- redLEDs<="000000000000001111";
+											NEXT_STATE := player_3_hit; redLEDs<="000000000000001111";
 									elsif(playerStands='1')then
-											NEXT_STATE := dealer_2;-- redLEDs<="000000000000011111";
+											NEXT_STATE := dealer_2; redLEDs<="000000000000011111";
 									end if;
 				when player_3_hit => if( playerStands='0' and playerBust='0' ) then
-												nexT_STATE := player_4_hit; --redLEDs<="000000000000111111";
+												nexT_STATE := player_4_hit; redLEDs<="000000000000111111";
 											elsif(playerStands= '1' and playerBust ='0')then
-												nexT_STATE := dealer_2; --redLEDs<="000000000001111111";
+												nexT_STATE := dealer_2; redLEDs<="000000000001111111";
 											elsif(playerBust ='1')then
-												next_STATE := dealer_2; --redLEDs<="000000000011111111";
+												next_STATE := dealer_2; redLEDs<="000000000011111111";
 											end if;
-				when player_4_hit => NEXT_STATE := dealer_2; --redLEDs<="000000000000000010";
+				when player_4_hit => NEXT_STATE := dealer_2; redLEDs<="000000000000000010";
 				when dealer_2 =>if(dealerStands='0') then
-										nexT_STATE := dealer_3_hit;  ---redLEDs<="000000000000000110";
+										nexT_STATE := dealer_3_hit;  redLEDs<="000000000000000110";
 									elsif(dealerStands='1' and dealerWins='1')then
-										nexT_STATE := dealer_win; --redLEDs<="000000000000001110";
+										nexT_STATE := dealer_win; redLEDs<="000000000000001110";
 									elsif(dealerStands='1' and playerWins='1')then
-										nexT_STATE := player_win; --redLEDs<="000000000000011110";
+										nexT_STATE := player_win; redLEDs<="000000000000011110";
 									end if;
 				when others => NEXT_STATE := idle;
 			end case;
@@ -410,4 +410,3 @@ begin
 --		end if;
 --	end process;
 end behAVIOURAL;
-
