@@ -1,0 +1,64 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use ieee.std_logic_unsigned.all;
+
+entity little_FSM is
+	port(
+		CLOCK_50 : in std_logic;
+		KEY		: in std_logic_vector(3 downto 0);
+		nextStep_sig: out std_LOGIC;
+		
+		LEDR	: out STD_LOGIC_VECTOR(17 downto 0);
+		LEDG	: out STD_LOGIC_VECTOR(7 downto 0);
+		LEDG_TEST : out std_LOGIC
+	
+	);
+end entity;	
+
+architecture behavioural of little_fsm is
+	
+	signal button_STATE:  STD_LOGIC_VECTOR(2 DOWNTO 0):= "000";
+	signal nextStep	: std_LOGIC;
+	signal clock : std_LOGIC;
+
+begin
+
+	clock <= CLOCK_50;
+	nextStep <= KEY(0);
+
+	process(clock)
+	begin 
+		if(button_STATE="000")then
+			nextStep_sig <='1';
+			if(nextStep='0')then
+				button_STATE<="001";
+			else
+				button_STATE<="000";
+			end if;
+			LEDG_TEST <= '1';
+		elsif (button_STATE="001")then
+			nextStep_sig <='1';
+			LEDG_TEST <= '0';
+			if(nextStep='1')then
+				button_STATE<="010";
+			else
+				button_STATE<="001";
+			end if;
+			
+		elsif (button_STATE="010")then
+			nextStep_sig <='0';----------------------
+			button_STATE<="011";
+			LEDG_TEST <= '1';
+		elsif (button_STATE="011")then
+			nextStep_sig <='1';--
+			button_STATE<="100";
+			LEDG_TEST <= '1';
+		else
+			nextStep_sig<='1';--
+			button_STATE<="000";
+			LEDG_TEST <= '1';
+		end if;
+	end process;	
+	
+end behavioural;
