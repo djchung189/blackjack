@@ -16,8 +16,8 @@ entity FSM is
 		playerBust   : IN STD_LOGIC; -- true if playerScore > 21
 		dealerBust   : IN STD_LOGIC;  -- true if dealerScore > 21
 
-		newPlayerCards : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
-		newDealerCards : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+		newPlayerCard : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+		newDealerCard : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
 
 		redLEDs   : OUT STD_LOGIC_VECTOR(17 DOWNTO 0);
 		greenLEDs : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
@@ -35,37 +35,37 @@ architecture BEHAVIOURAL of FSM is
 	signal int_nextStep: std_LOGIC;
 	
 	signal button_STATE:  STD_LOGIC_VECTOR(1 DOWNTO 0);
-	
-		
 begin
 	resetsignal<=reset;
 	nextsignal<=nextStep;
 	
+	
 	process(clock)
 	begin 
 		if(button_STATE="00")then
+			redLEDs   <="000000000000000001";
 			int_nextStep <='1';
 			if(nextStep='0')then
 				button_STATE<="01";
 			end if;
 		elsif (button_STATE="01")then
+			redLEDs   <="000000000000000001";
 			int_nextStep <='1';
 			if(nextStep='1')then
 				button_STATE<="10";
 			end if;
 		elsif (button_STATE="10")then
+			redLEDs   <="000000000000000000";
 			int_nextStep <='0';
 			button_STATE<="11";
 		else
+			redLEDs   <="000000000000000000";
 			int_nextStep<='0';
 			button_STATE<="00";
 		end if;
-	end process;	
-	
-	
+	end process;
 	
 	process (clock ,resetsignal)
-	
 	begin
 		if(resetsignal = '0') then
 			PRESENT_STATE <= idle;
@@ -76,21 +76,21 @@ begin
 				else
 					PRESENT_STATE <= idle;
 				end if;
---				greenLEDs<="00000000";
+				greenLEDs<="00000000";
 			elsif(PRESENT_STATE=player_1)then--deal card to dealer
 				if(int_nextStep='0') then
 					PRESENT_STATE <= dealer_1;
 				else
 					PRESENT_STATE <= player_1;
 				end if;
---				greenLEDs<="00000001";
+				greenLEDs<="00000001";
 			elsif(PRESENT_STATE=dealer_1)then-- deal card to player and check if it should proceed to next stage
 				if(int_nextStep='0') then
 					PRESENT_STATE <= player_2;
 				else
 					PRESENT_STATE <= dealer_1;
 				end if;
-	--			greenLEDs<="00000010";
+				greenLEDs<="00000010";
 			elsif(PRESENT_STATE=player_2)then
 				if(int_nextStep='0' and playerStands='0') then
 					PRESENT_STATE <= player_3_hit;
@@ -99,7 +99,7 @@ begin
 				else
 					PRESENT_STATE <= player_2;
 				end if;
---				greenLEDs<="00000011";
+				greenLEDs<="00000011";
 			elsif(PRESENT_STATE=player_3_hit)then
 				if(int_nextStep='0' and playerStands='0' and playerBust='0' ) then--
 					PRESENT_STATE <= player_4_hit;
@@ -175,27 +175,27 @@ begin
 	process(PRESENT_STATE)
 	begin
 		If(PRESENT_STATE=idle)then
-			newPlayerCards <="0000";
-			newDealerCards <="0000";
+			newPlayerCard <="0000";
+			newDealerCard <="0000";
 
 			redLEDs   <="000000000000000000";
 			greenLEDs <="00000000";
 		elsif(PRESENT_STATE=player_1)then 
-			newPlayerCards <= "0001";
+			newPlayerCard <= "0001";
 		elsif(PRESENT_STATE=dealer_1)then 
-			newDealerCards <= "0001";
+			newDealerCard <= "0001";
 		elsif(PRESENT_STATE=player_2)then 
-			newPlayerCards <= "0011";
+			newPlayerCard <= "0011";
 		elsif(PRESENT_STATE=player_3_hit)then 
-			newPlayerCards <= "0111";
+			newPlayerCard <= "0111";
 		elsif(PRESENT_STATE=player_4_hit)then 
-			newPlayerCards <= "1111";
+			newPlayerCard <= "1111";
 		elsif(PRESENT_STATE=dealer_2)then
-			newDealerCards <= "0011";
+			newDealerCard <= "0011";
 		elsif(PRESENT_STATE=dealer_3_hit)then
-			newDealerCards <= "0111";
+			newDealerCard <= "0111";
 		elsif(PRESENT_STATE=dealer_4_hit)then
-			newDealerCards <= "1111";
+			newDealerCard <= "1111";
 		elsif(PRESENT_STATE=player_win)then 
 			greenLEDs<="11111111";
 		elsif(PRESENT_STATE=both_bust)then
@@ -208,4 +208,3 @@ begin
 		end if;
 	end process;
 end behAVIOURAL;
-
