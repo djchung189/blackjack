@@ -16,8 +16,8 @@ entity FSM is
 		playerBust   : IN STD_LOGIC; -- true if playerScore > 21
 		dealerBust   : IN STD_LOGIC;  -- true if dealerScore > 21
 
-		newPlayerCard : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
-		newDealerCard : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+		newPlayerCards : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+		newDealerCards : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
 
 		redLEDs   : OUT STD_LOGIC_VECTOR(17 DOWNTO 0);
 		greenLEDs : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
@@ -32,10 +32,37 @@ architecture BEHAVIOURAL of FSM is
 	signal resetsignal : std_LOGIC;
 	signal nextsignal : std_LOGIC;
 	
+	signal int_nextStep: std_LOGIC;
+	
+	signal button_STATE:  STD_LOGIC_VECTOR(1 DOWNTO 0);
+	
 		
 begin
 	resetsignal<=reset;
 	nextsignal<=nextStep;
+	
+	process(clock)
+	begin 
+		if(button_STATE="00")then
+			int_nextStep <='1';
+			if(nextStep='0')then
+				button_STATE<="01";
+			end if;
+		elsif (button_STATE="01")then
+			int_nextStep <='1';
+			if(nextStep='1')then
+				button_STATE<="10";
+			end if;
+		elsif (button_STATE="10")then
+			int_nextStep <='0';
+			button_STATE<="11";
+		else
+			int_nextStep<='0';
+			button_STATE<="00";
+		end if;
+	end process;	
+	
+	
 	
 	process (clock ,resetsignal)
 	
@@ -44,39 +71,39 @@ begin
 			PRESENT_STATE <= idle;
 		elsif(rising_edge(clock)) then
 			If(PRESENT_STATE=idle)then --deal card to player
-				if(nextsignal='0')then
+				if(int_nextStep='0')then
 					PRESENT_STATE <= player_1;
 				else
 					PRESENT_STATE <= idle;
 				end if;
-				greenLEDs<="00000000";
+--				greenLEDs<="00000000";
 			elsif(PRESENT_STATE=player_1)then--deal card to dealer
-				if(nextsignal='0') then
+				if(int_nextStep='0') then
 					PRESENT_STATE <= dealer_1;
 				else
 					PRESENT_STATE <= player_1;
 				end if;
-				greenLEDs<="00000001";
+--				greenLEDs<="00000001";
 			elsif(PRESENT_STATE=dealer_1)then-- deal card to player and check if it should proceed to next stage
-				if(nextsignal='0') then
+				if(int_nextStep='0') then
 					PRESENT_STATE <= player_2;
 				else
 					PRESENT_STATE <= dealer_1;
 				end if;
-				greenLEDs<="00000010";
+	--			greenLEDs<="00000010";
 			elsif(PRESENT_STATE=player_2)then
-				if(nextsignal='0' and playerStands='0') then
+				if(int_nextStep='0' and playerStands='0') then
 					PRESENT_STATE <= player_3_hit;
-				elsif(nextsignal='0' and playerStands='1')then
+				elsif(int_nextStep='0' and playerStands='1')then
 					PRESENT_STATE <= dealer_2;
 				else
 					PRESENT_STATE <= player_2;
 				end if;
-				greenLEDs<="00000011";
+--				greenLEDs<="00000011";
 			elsif(PRESENT_STATE=player_3_hit)then
-				if(nextsignal='0' and playerStands='0' and playerBust='0' ) then--
+				if(int_nextStep='0' and playerStands='0' and playerBust='0' ) then--
 					PRESENT_STATE <= player_4_hit;
-				elsif(nextsignal='0')then
+				elsif(int_nextStep='0')then
 					if(playerStands='1')then
 						PRESENT_STATE <= dealer_2;
 					elsif(playerBust = '1')then
@@ -87,27 +114,27 @@ begin
 				end if;
 			
 			elsif(PRESENT_STATE=player_4_hit)then
-				if(nextsignal='0') then
+				if(int_nextStep='0') then
 					PRESENT_STATE <= dealer_2;
 				else
 					PRESENT_STATE <= player_4_hit;
 				end if;
 			
 			elsif(PRESENT_STATE=dealer_2)then
-				if(nextsignal='0' and dealerStands='0') then
+				if(int_nextStep='0' and dealerStands='0') then
 					PRESENT_STATE <= dealer_3_hit;
-				elsif(nextsignal='0' and dealerStands='1' and dealerWins='1')then
+				elsif(int_nextStep='0' and dealerStands='1' and dealerWins='1')then
 					PRESENT_STATE <= dealer_win;
-				elsif(nextsignal='0' and dealerStands='1' and playerWins='1')then
+				elsif(int_nextStep='0' and dealerStands='1' and playerWins='1')then
 					PRESENT_STATE <= player_win;
 				else
 					PRESENT_STATE <= dealer_2;
 				end if;
 			
 			elsif(PRESENT_STATE=dealer_3_hit)then
-				if(nextsignal='0' and dealerStands='0') then
+				if(int_nextStep='0' and dealerStands='0') then
 					PRESENT_STATE <= dealer_4_hit;
-				elsif(nextsignal='0' and dealerStands='1' and dealerWins='1')then
+				elsif(int_nextStep='0' and dealerStands='1' and dealerWins='1')then
 					PRESENT_STATE <= dealer_win;
 				else
 					PRESENT_STATE <= dealer_3_hit;
@@ -115,11 +142,11 @@ begin
 			
 			
 			elsif(PRESENT_STATE=dealer_4_hit)then
-				if(nextsignal='0' and dealerWins='1') then
+				if(int_nextStep='0' and dealerWins='1') then
 					PRESENT_STATE <= dealer_win;
-				elsif(nextsignal='0' and playerWins='1')then
+				elsif(int_nextStep='0' and playerWins='1')then
 					PRESENT_STATE <= player_win;
-				elsif(nextsignal='0' and playerBust='1' and dealerbust ='1')then
+				elsif(int_nextStep='0' and playerBust='1' and dealerbust ='1')then
 					PRESENT_STATE <= both_bust;
 				else
 					PRESENT_STATE <= dealer_4_hit;
@@ -145,39 +172,39 @@ begin
 		--
 	end process;
 	
---	process(PRESENT_STATE)
---	begin
---		If(PRESENT_STATE=idle)then
---			newPlayerCard <="0000";
---			newDealerCard <="0000";
---
---			redLEDs   <="000000000000000000";
---			greenLEDs <="00000000";
---		elsif(PRESENT_STATE=player_1)then 
---			newPlayerCard <= "0001";
---		elsif(PRESENT_STATE=dealer_1)then 
---			newDealerCard <= "0001";
---		elsif(PRESENT_STATE=player_2)then 
---			newPlayerCard <= "0011";
---		elsif(PRESENT_STATE=player_3_hit)then 
---			newPlayerCard <= "0111";
---		elsif(PRESENT_STATE=player_4_hit)then 
---			newPlayerCard <= "1111";
---		elsif(PRESENT_STATE=dealer_2)then
---			newDealerCard <= "0011";
---		elsif(PRESENT_STATE=dealer_3_hit)then
---			newDealerCard <= "0111";
---		elsif(PRESENT_STATE=dealer_4_hit)then
---			newDealerCard <= "1111";
---		elsif(PRESENT_STATE=player_win)then 
---			greenLEDs<="11111111";
---		elsif(PRESENT_STATE=both_bust)then
---			greenLEDs<="11111111";
---			redLeds<="111111111111111111";
---		elsif(PRESENT_STATE=dealer_win)then 
---			redLeds<="111111111111111111";
---		elsif(PRESENT_STATE=end_game)then 
---		else		
---		end if;
---	end process;
+	process(PRESENT_STATE)
+	begin
+		If(PRESENT_STATE=idle)then
+			newPlayerCards <="0000";
+			newDealerCards <="0000";
+
+			redLEDs   <="000000000000000000";
+			greenLEDs <="00000000";
+		elsif(PRESENT_STATE=player_1)then 
+			newPlayerCards <= "0001";
+		elsif(PRESENT_STATE=dealer_1)then 
+			newDealerCards <= "0001";
+		elsif(PRESENT_STATE=player_2)then 
+			newPlayerCards <= "0011";
+		elsif(PRESENT_STATE=player_3_hit)then 
+			newPlayerCards <= "0111";
+		elsif(PRESENT_STATE=player_4_hit)then 
+			newPlayerCards <= "1111";
+		elsif(PRESENT_STATE=dealer_2)then
+			newDealerCards <= "0011";
+		elsif(PRESENT_STATE=dealer_3_hit)then
+			newDealerCards <= "0111";
+		elsif(PRESENT_STATE=dealer_4_hit)then
+			newDealerCards <= "1111";
+		elsif(PRESENT_STATE=player_win)then 
+			greenLEDs<="11111111";
+		elsif(PRESENT_STATE=both_bust)then
+			greenLEDs<="11111111";
+			redLeds<="111111111111111111";
+		elsif(PRESENT_STATE=dealer_win)then 
+			redLeds<="111111111111111111";
+		elsif(PRESENT_STATE=end_game)then 
+		else		
+		end if;
+	end process;
 end behAVIOURAL;
