@@ -1,28 +1,19 @@
-signal int_nextStep: std_LOGIC;
-	
-	signal button_STATE:  STD_LOGIC_VECTOR(1 DOWNTO 0);
-	
-	process(clock)
-	begin 
-		if(button_STATE="00")then
-			redLEDs   <="000000000000000001";
-			int_nextStep <='1';
-			if(nextStep='0')then
-				button_STATE<="01";
-			end if;
-		elsif (button_STATE="01")then
-			redLEDs   <="000000000000000001";
-			int_nextStep <='1';
-			if(nextStep='1')then
-				button_STATE<="10";
-			end if;
-		elsif (button_STATE="10")then
-			redLEDs   <="000000000000000001";
-			int_nextStep <='0';
-			button_STATE<="11";
-		else
-			redLEDs   <="000000000000000000";
-			int_nextStep<='0';
-			button_STATE<="00";
-		end if;
-	end process;
+case NEXT_STATE is 
+				when idle => greenLEDs<="00000001";
+				when player_1 => newPlayerCards <= "0001";greenLEDs<="00000011";
+				when dealer_1 => newDealerCards <= "0001";greenLEDs<="00000111";
+				when player_2 => newPlayerCards <= "0011";greenLEDs<="00001111";
+				when player_3_hit=> newPlayerCards <= "0111";greenLEDs<="00011111";
+				when player_4_hit=> newPlayerCards <= "1111";greenLEDs<="00111111";
+				when dealer_2=> newDealerCards <= "0011";greenLEDs<="01111111";
+				when dealer_3_hit=>newDealerCards <= "0111";greenLEDs<="11111111";
+				when dealer_4_hit=>newDealerCards <= "1111";greenLEDs<="11111110";
+				when player_win=>greenLEDs<="11111100";
+					--redLEDs   <="000000001111111111";
+				when both_bust=>greenLEDs<="11111000";
+					--redLeds<="111111111111111111";
+				when dealer_win=>greenLEDs<="11110000";
+					--redLeds<="111111111111111111";
+				when others => greenLEDs<="11100000";
+					greenLEDs<="11000000";
+			end case;
