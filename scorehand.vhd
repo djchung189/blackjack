@@ -6,12 +6,10 @@ use ieee.std_logic_unsigned.all;
 
 entity scorehand is
   port(
-		SW   	      : in  std_logic_vector(15 downto 0);
+		CardHand				: in  std_logic_vector(15 downto 0);
 		
       sum		         : out std_logic_vector(4 downto 0);
-      Bust		         : out std_logic;
-		LEDR					: out std_logic_vector( 4 downto 0);
-		LEDG					: out std_logic_vector( 7 downto 0 )
+      Bust		         : out std_logic
 		
 		);
 end scorehand;
@@ -35,14 +33,40 @@ architecture Behavioural of Scorehand is
 				
 begin
 
-	int_card0 <= unsigned(SW(3 downto 0));
-	int_card1 <= unsigned(SW(7 downto 4));
-	int_card2 <= unsigned(SW(11 downto 8));
-	int_card3 <= unsigned(SW(15 downto 12));
+	int_card0 <= unsigned(CardHand(3 downto 0));
+	int_card1 <= unsigned(CardHand(7 downto 4));
+	int_card2 <= unsigned(CardHand(11 downto 8));
+	int_card3 <= unsigned(CardHand(15 downto 12));
 	
-	LEDG(7 downto 1) <= "0000000";
+--If the card is a Jack, Queen or King, give it the value of 10
+--	process(CardHand)
+--	begin
+--		If (CardHand(3 downto 0) > "1011") Then
+--			int_card0 <= "1011";
+--		else
+--			int_card0 <= unsigned(CardHand(3 downto 0));
+--		end if;
+--
+--		If (CardHand(7 downto 4) > "1011") Then
+--			int_card1 <= "1011";
+--		else
+--			int_card1 <= unsigned(CardHand(7 downto 4));
+--		end if;
+--		
+--		If (CardHand(11 downto 8) > "1011") Then
+--			int_card2 <= "1011";
+--		else
+--			int_card2 <= unsigned(CardHand(11 downto 8));
+--		end if;
+--	
+--		If (CardHand(15 downto 12) > "1011") Then
+--			int_card3 <= "1011";
+--		else
+--			int_card2 <= unsigned(CardHand(15 downto 12));
+--		end if;
+--	end process;
 	
-	
+--Determine the number of Aces in the hand
 	process( int_card0, int_card1, int_card2, int_card3 )
 	  variable Temp_AceTot: unsigned(1 downto 0);
 	begin
@@ -76,10 +100,10 @@ begin
 			C3Ace <= '0';
 		end if;	
 		
-		AceTot <= Temp_AceTot;
-		
+		AceTot <= Temp_AceTot;	
 	end process;
 	
+--Calculate the intermediate Score of the hand, not including Aces
 	process( int_card0, int_card1, int_card2, int_card3, C0Ace, C1Ace, C2Ace, C3Ace )
 	    variable temp_sum: unsigned(5 downto 0)  := "000000";
 	begin
@@ -113,6 +137,7 @@ begin
 		int_sum <= temp_sum;
 	end process;
 	
+--Calculate final score including all Aces
 	process( int_sum, AceTot )
 	begin
 	  int_sum1 <= "00000";
@@ -140,18 +165,16 @@ begin
 		end if;
 	end process;	
 	
+--Determine if the hand is bust from the final score
 	process( int_sum1 )
 	begin
 		if( int_sum1 > "10101" ) then
 			Bust <= '1';
-			LEDG(0) <= '0';
-		else
+			else
 			Bust <= '0';
-			LEDG(0) <= '1';
 		end if;
 	end process;
 	
-	sum <= int_sum1;
-	LEDR( 4 downto 0 ) <= int_sum1;
+	sum <= int_sum1;	--Give the final score to the output bus
 
 end;
